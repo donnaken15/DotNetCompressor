@@ -1,15 +1,14 @@
 ﻿
 //nothing passed on yet.
 
-var assemb = Assembly.Load(tAppBytes);
-tAppBytes = null; 
+string pdb = Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().Location) + ".pdb";
+
+var assemb = File.Exists(pdb) ? Assembly.Load(tAppBytes, File.ReadAllBytes(pdb)) : Assembly.Load(tAppBytes);
+tAppBytes = null;
 GC.Collect();
 
 try {
-	assemb.EntryPoint.Invoke(null, new object[] { args });
-
-} catch(Exception ex)
-{
-	
-	assemb.EntryPoint.Invoke(null, new object[] {});
+	%ret%assemb.EntryPoint.Invoke(null, new object[] {args});
+} catch(Exception ex) {
+	%ret%assemb.EntryPoint.Invoke(null, new object[] {});
 }

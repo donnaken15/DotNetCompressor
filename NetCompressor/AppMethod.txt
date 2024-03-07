@@ -2,15 +2,12 @@
 byte[] appBytes = (byte[])rm.GetObject("%appname%");
 
 //Loading App
-int appSize = %appsize%;
 MemoryStream memStr = new MemoryStream(appBytes);
 var gStream = new %mode%;
 
+byte[] tAppBytes = new byte[%appsize%];
 
-
-byte[] tAppBytes = new byte[appSize];
-
-gStream.Read(tAppBytes, 0, appSize);
+gStream.Read(tAppBytes, 0, %appsize%);
 memStr.Close();
 gStream.Close();
 
