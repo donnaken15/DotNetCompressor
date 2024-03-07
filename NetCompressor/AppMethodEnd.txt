@@ -10,5 +10,5 @@ GC.Collect();
 try {
 	%ret%assemb.EntryPoint.Invoke(null, new object[] {args});
 } catch(Exception ex) {
-	%ret%assemb.EntryPoint.Invoke(null, new object[] {});
+	%ret%assemb.EntryPoint.Invoke(null, new object[] {new string[0]});
 }
