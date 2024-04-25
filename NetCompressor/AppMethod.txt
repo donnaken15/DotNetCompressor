@@ -1,4 +1,6 @@
-﻿ResourceManager rm = new ResourceManager("resource", Assembly.GetExecutingAssembly());
+﻿Assembly asm = Assembly.GetExecutingAssembly();
+
+ResourceManager rm = new ResourceManager("resource", asm);
 byte[] appBytes = (byte[])rm.GetObject("%appname%");
 
 //Loading App
