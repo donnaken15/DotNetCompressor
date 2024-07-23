@@ -36,13 +36,8 @@ namespace NetCompressor
 		/// <returns></returns>
 		private static string CompressApplication(ResourceWriter writer)
 		{
-			//this is what the application is called in the resource file.
 			const string APPLICATION_NAME = "app";
-			
-			//generates a temporary file to compress into.
-			FileStream stream = File.Open(outputFile + "temp_c.dat", FileMode.Create);
-
-			//opens the input file (which has been merged with some other dlls).
+			MemoryStream stream = new MemoryStream();
 			FileStream stream2 = File.OpenRead(outputFile + "_temp");
 
 			//sets the mode to follow when it generates the code. It swaps between G-Zip and LZMA.
@@ -63,23 +58,20 @@ namespace NetCompressor
 				mode = "GZipStream(memStr, CompressionMode.Decompress)";
 			}
 
-			//compresses, not the most efficient way to compress, I should buffer it, but it doesn't matter.
-			while (stream2.Position < stream2.Length)
-			{
-				gStream.WriteByte((byte)stream2.ReadByte());
-			}
+			stream2.CopyTo(gStream);
 			
-  
-			//closes each of the streams.
 			gStream.Close();
 			stream.Close(); //closing this one manually because some compression libraries don't have the wrapper close the stream passed into it.
 			stream2.Close();
 
 			//add the resource to the file.
-			writer.AddResource(APPLICATION_NAME, File.ReadAllBytes(outputFile + "temp_c.dat"));
+			writer.AddResource(APPLICATION_NAME, stream.ToArray());
 
 			//add the code.
-			string code = manager.GetString("AppMethod").Replace("%appname%", APPLICATION_NAME).Replace("%appsize%", "" + appSize).Replace("%mode%", mode);
+			string code = manager.GetString("AppMethod")
+				.Replace("%appname%", APPLICATION_NAME)
+				.Replace("%appsize%", "" + appSize)
+				.Replace("%mode%", mode);
 			
 			return code;
 		}
@@ -98,7 +90,9 @@ namespace NetCompressor
 
 			if (dllInstructions.Count != 2) //if there have been instructions added prior, that means dlls have been passed in, repack it.
 			{
-				new ILRepacking.ILRepack(new ILRepacking.RepackOptions(new ILRepacking.CommandLine(dllInstructions))).Repack();
+				new ILRepacking.ILRepack(
+					new ILRepacking.RepackOptions(
+						new ILRepacking.CommandLine(dllInstructions))).Repack();
 			}
 			else //repacking isn't necessary if there are no dlls. just rename the file.
 			{
@@ -468,7 +462,7 @@ class Program
 			{
 				//compiler
 				ICodeCompiler icc = codeProvider.CreateCompiler();
-			
+				
 				//tell it to make an exe.
 				parameters.GenerateExecutable = true;
 				

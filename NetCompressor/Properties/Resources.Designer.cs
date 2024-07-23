@@ -61,21 +61,22 @@ namespace NetCompressor.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ResourceManager rm = new ResourceManager(&quot;resource&quot;, Assembly.GetExecutingAssembly());
+        ///   Looks up a localized string similar to Assembly asm = Assembly.GetExecutingAssembly();
+        ///
+        ///ResourceManager rm = new ResourceManager(&quot;resource&quot;, asm);
         ///byte[] appBytes = (byte[])rm.GetObject(&quot;%appname%&quot;);
         ///
         /////Loading App
-        ///int appSize = %appsize%;
         ///MemoryStream memStr = new MemoryStream(appBytes);
         ///var gStream = new %mode%;
         ///
+        ///MemoryStream tAppBytes = new MemoryStream(%appsize%);
+        ///gStream.CopyTo(tAppBytes);
+        ///memStr.Dispose();
+        ///gStream.Dispose();
         ///
-        ///
-        ///byte[] tAppBytes = new byte[appSize];
-        ///
-        ///gStream.Read(tAppBytes, 0, appSize);
-        ///memStr.Close();
-        ///gStream.Close();
+        ///byte[] exe = tAppBytes.ToArray();
+        ///tAppBytes.Dispose();
         ///
         /////End Loading App.
         /// </summary>
@@ -89,17 +90,19 @@ namespace NetCompressor.Properties {
         ///   Looks up a localized string similar to 
         /////nothing passed on yet.
         ///
-        ///var assemb = Assembly.Load(tAppBytes);
-        ///tAppBytes = null; 
+        ///string pdb = Path.GetDirectoryName(asm.Location) + &apos;\\&apos; + Path.GetFileNameWithoutExtension(asm.Location) + &quot;.pdb&quot;;
+        ///
+        ///var assemb = File.Exists(pdb) ?
+        ///	Assembly.Load(exe, File.ReadAllBytes(pdb)) :
+        ///	Assembly.Load(exe);
+        ///exe = null;
         ///GC.Collect();
+        ///object passthru = null;
         ///
         ///try {
-        ///	assemb.EntryPoint.Invoke(null, new object[] { args });
-        ///
-        ///} catch(Exception ex)
-        ///{
-        ///	
-        ///	assemb.EntryPoint.Invoke(null, new object[] {});
+        ///	%ret%assemb.EntryPoint.Invoke(null, new object[] {args});
+        ///} catch(Exception ex) {
+        ///	%ret%assemb.EntryPoint.Invoke(null, new object[] {new string[0]});
         ///}
         ///.
         /// </summary>

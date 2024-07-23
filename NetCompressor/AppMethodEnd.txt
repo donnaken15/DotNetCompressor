@@ -3,8 +3,10 @@
 
 string pdb = Path.GetDirectoryName(asm.Location) + '\\' + Path.GetFileNameWithoutExtension(asm.Location) + ".pdb";
 
-var assemb = File.Exists(pdb) ? Assembly.Load(tAppBytes, File.ReadAllBytes(pdb)) : Assembly.Load(tAppBytes);
-tAppBytes = null;
+Assembly assemb = File.Exists(pdb) ?
+	Assembly.Load(exe, File.ReadAllBytes(pdb)) :
+	Assembly.Load(exe);
+exe = null;
 GC.Collect();
 
 try {
