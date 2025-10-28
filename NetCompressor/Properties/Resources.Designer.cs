@@ -68,15 +68,12 @@ namespace NetCompressor.Properties {
         ///
         /////Loading App
         ///MemoryStream memStr = new MemoryStream(appBytes);
-        ///var gStream = new %mode%;
+        ///Stream gStream = new %mode%;
         ///
-        ///MemoryStream tAppBytes = new MemoryStream(%appsize%);
-        ///gStream.CopyTo(tAppBytes);
+        ///byte[] exe = new byte[%appsize%];
+        ///gStream.Read(exe, 0, %appsize%);
         ///memStr.Dispose();
         ///gStream.Dispose();
-        ///
-        ///byte[] exe = tAppBytes.ToArray();
-        ///tAppBytes.Dispose();
         ///
         /////End Loading App.
         /// </summary>
@@ -92,12 +89,11 @@ namespace NetCompressor.Properties {
         ///
         ///string pdb = Path.GetDirectoryName(asm.Location) + &apos;\\&apos; + Path.GetFileNameWithoutExtension(asm.Location) + &quot;.pdb&quot;;
         ///
-        ///var assemb = File.Exists(pdb) ?
+        ///Assembly assemb = File.Exists(pdb) ?
         ///	Assembly.Load(exe, File.ReadAllBytes(pdb)) :
         ///	Assembly.Load(exe);
         ///exe = null;
         ///GC.Collect();
-        ///object passthru = null;
         ///
         ///try {
         ///	%ret%assemb.EntryPoint.Invoke(null, new object[] {args});
@@ -113,7 +109,7 @@ namespace NetCompressor.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to [assembly: AssemblyTitle(&quot;&quot;)]
+        ///   Looks up a localized string similar to /*[assembly: AssemblyTitle(&quot;&quot;)]
         ///[assembly: AssemblyDescription(&quot;&quot;)]
         ///[assembly: AssemblyConfiguration(&quot;&quot;)]
         ///[assembly: AssemblyCompany(&quot;&quot;)]
@@ -129,7 +125,7 @@ namespace NetCompressor.Properties {
         /////      Build Number
         /////      Revision
         /////
-        ///// You can specify all the values or you can defa [rest of string was truncated]&quot;;.
+        ///// You can specify all the values or you can de [rest of string was truncated]&quot;;.
         /// </summary>
         public static string Assembly {
             get {

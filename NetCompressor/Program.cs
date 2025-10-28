@@ -44,8 +44,26 @@ namespace NetCompressor
 			string mode;
 			long appSize = stream2.Length;
 			Stream gStream = null;
-			
-			if(gzOr7z)
+#if NATIVE_GZIP_COMPRESSION
+			Process gz = new Process()
+			{
+				StartInfo = new ProcessStartInfo()
+				{
+#if ZOPFLI
+					FileName = "pigz", Arguments = "-11cnmI 50 -p 8 -b 4096",
+#else
+					FileName = "gzip", Arguments = "-9v",
+#endif
+					RedirectStandardError = true,
+					RedirectStandardInput = true,
+					RedirectStandardOutput = true,
+					UseShellExecute = false,
+					CreateNoWindow = false
+				}
+			};
+#endif
+
+			if (gzOr7z)
 			{
 				// lzipstream
 				gStream = new SharpCompress.Compressors.LZMA.LZipStream(stream, SharpCompress.Compressors.CompressionMode.Compress);
@@ -54,15 +72,28 @@ namespace NetCompressor
 			else
 			{
 				//gzip
+#if NATIVE_GZIP_COMPRESSION
+				gz.Start();
+				gStream = gz.StandardInput.BaseStream;
+				gz.BeginErrorReadLine();
+#else
 				gStream = new GZipStream(stream, CompressionLevel.Optimal);
+#endif
 				mode = "GZipStream(memStr, CompressionMode.Decompress)";
 			}
-
-			stream2.CopyTo(gStream);
 			
+			stream2.CopyTo(gStream);
 			gStream.Close();
+#if NATIVE_GZIP_COMPRESSION
+			if (!gz.HasExited)
+			{
+				gz.StandardOutput.BaseStream.CopyTo(stream);
+				gz.WaitForExit();
+			}
+#endif
 			stream.Close(); //closing this one manually because some compression libraries don't have the wrapper close the stream passed into it.
 			stream2.Close();
+
 
 			//add the resource to the file.
 			writer.AddResource(APPLICATION_NAME, stream.ToArray());
@@ -323,16 +354,16 @@ class Program
 				//information.
 				Console.WriteLine(
 					"[Input Exe | -e] [Output File] (-gz | -lz | -lz0) (-w) (-d) (-i) (-m [text file]) (-a [file]) (dlls) ... "+
-					"-e (Exports a file with all the default compilation tags for you to modify. You could also use this option to export the SevenSharpZip.dll file)"+
-					"-gz (Sets it to GZip mode)"+
-					"-lz (Sets it to Lzma mode) (default)"+
-					"-lz0 (Lzma mode, but doesn't package in the 7-zip dll)"+
-					"-w (Specifies to not launch a console at the start of the application. Windows Mode)"+
-					"-d (Displays the code generated.)"+
-					"-rip (attempts to rip the icon from the exe it is compressing. Do not use with -i)."+
-					"-m [text file] (allows you to add a text file to display in the console). "+
-					"-a [file] (allows you to write in some C# tag code. This is recommended for adding in your compilation tags)."+
-					"-i [icon file] (allows you to add an icon to your application of your choice. Do not use with -rip).");
+					"\n-e (Exports a file with all the default compilation tags for you to modify. You could also use this option to export the SevenSharpZip.dll file)"+
+					"\n-gz (Sets it to GZip mode)"+
+					"\n-lz (Sets it to Lzma mode) (default)"+
+					"\n-lz0 (Lzma mode, but doesn't package in the 7-zip dll)"+
+					"\n-w (Specifies to not launch a console at the start of the application. Windows Mode)"+
+					"\n-d (Displays the code generated.)"+
+					"\n-rip (attempts to rip the icon from the exe it is compressing. Do not use with -i)."+
+					"\n-m [text file] (allows you to add a text file to display in the console). "+
+					"\n-a [file] (allows you to write in some C# tag code. This is recommended for adding in your compilation tags)."+
+					"\n-i [icon file] (allows you to add an icon to your application of your choice. Do not use with -rip).");
 
 				Environment.Exit(0);
 			}
